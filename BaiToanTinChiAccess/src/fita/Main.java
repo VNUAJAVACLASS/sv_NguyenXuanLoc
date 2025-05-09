@@ -25,7 +25,7 @@ public class Main {
             try {
                 choice = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("❌ Vui lòng nhập số hợp lệ.");
+                System.out.println(" Vui lòng nhập số hợp lệ.");
                 continue;
             }
 
@@ -34,11 +34,11 @@ public class Main {
                     System.out.print("Nhập mã: ");
                     String code = sc.nextLine();
                     if (code.trim().isEmpty()) {
-                        System.out.println("❌ Mã không được để trống.");
+                        System.out.println(" Mã không được để trống.");
                         break;
                     }
                     if (userDAO.userExists(code)) {
-                        System.out.println("❌ Mã người dùng đã tồn tại.");
+                        System.out.println(" Mã người dùng đã tồn tại.");
                         break;
                     }
                     System.out.print("Nhập tên: ");
@@ -52,13 +52,13 @@ public class Main {
                     System.out.print("Nhập vai trò (Student/Admin): ");
                     String role = sc.nextLine();
                     if (!role.equalsIgnoreCase("Student") && !role.equalsIgnoreCase("Admin")) {
-                        System.out.println("❌ Vai trò phải là Student hoặc Admin.");
+                        System.out.println(" Vai trò phải là Student hoặc Admin.");
                         break;
                     }
                     if (userDAO.addUser(new User(code, name, address, className, password, role))) {
-                        System.out.println("✔ Đã thêm người dùng.");
+                        System.out.println(" Đã thêm người dùng.");
                     } else {
-                        System.out.println("❌ Thêm thất bại. Vui lòng kiểm tra lại.");
+                        System.out.println(" Thêm thất bại. Vui lòng kiểm tra lại.");
                     }
                 }
 
@@ -66,13 +66,13 @@ public class Main {
                     System.out.print("Nhập mã người dùng cần xoá: ");
                     String code = sc.nextLine();
                     if (!userDAO.userExists(code)) {
-                        System.out.println("❌ Mã người dùng không tồn tại.");
+                        System.out.println(" Mã người dùng không tồn tại.");
                         break;
                     }
                     if (userDAO.deleteUser(code)) {
-                        System.out.println("✔ Đã xoá.");
+                        System.out.println(" Đã xoá.");
                     } else {
-                        System.out.println("❌ Xoá thất bại. Vui lòng kiểm tra lại.");
+                        System.out.println(" Xoá thất bại. Vui lòng kiểm tra lại.");
                     }
                 }
 
@@ -92,11 +92,11 @@ public class Main {
                     System.out.print("Nhập mã môn học: ");
                     String subjectCode = sc.nextLine();
                     if (subjectCode.trim().isEmpty()) {
-                       System.out.println("❌ Mã môn học không được để trống.");
+                       System.out.println(" Mã môn học không được để trống.");
                         break;
                     }
                     if (subjectDAO.subjectExists(subjectCode)) {
-                        System.out.println("❌ Mã môn học đã tồn tại.");
+                        System.out.println(" Mã môn học đã tồn tại.");
                         break;
                     }
                     System.out.print("Nhập tên môn học: ");
@@ -106,17 +106,17 @@ public class Main {
                     try {
                         credit = Integer.parseInt(sc.nextLine());
                         if (credit <= 0) {
-                            System.out.println("❌ Số tín chỉ phải lớn hơn 0.");
+                            System.out.println(" Số tín chỉ phải lớn hơn 0.");
                             break;
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("❌ Số tín chỉ phải là số hợp lệ.");
+                        System.out.println(" Số tín chỉ phải là số hợp lệ.");
                         break;
                     }
                     if (subjectDAO.addSubject(new Subject(subjectCode, subjectName, credit, 0.2, 0.2, 0.2, 0.2, 0.2))) {
-                        System.out.println("✔ Đã thêm môn học.");
+                        System.out.println(" Đã thêm môn học.");
                     } else {
-                        System.out.println("❌ Thêm môn học thất bại. Vui lòng kiểm tra lại.");
+                        System.out.println(" Thêm môn học thất bại. Vui lòng kiểm tra lại.");
                     }
                 }
 
@@ -124,13 +124,13 @@ public class Main {
                     System.out.print("Nhập mã người dùng: ");
                     String userCode = sc.nextLine();
                     if (!userDAO.userExists(userCode)) {
-                        System.out.println("❌ Mã người dùng không tồn tại.");
+                        System.out.println(" Mã người dùng không tồn tại.");
                         break;
                     }
                     System.out.print("Nhập mã môn học: ");
                     String subjectCode = sc.nextLine();
                     if (!subjectDAO.subjectExists(subjectCode)) {
-                        System.out.println("❌ Mã môn học không tồn tại.");
+                        System.out.println(" Mã môn học không tồn tại.");
                         break;
                     }
                     double[] scores = new double[5];
@@ -139,20 +139,20 @@ public class Main {
                         try {
                             scores[i] = Double.parseDouble(sc.nextLine());
                             if (scores[i] < 0 || scores[i] > 10) {
-                                System.out.println("❌ Điểm phải từ 0 đến 10.");
+                                System.out.println(" Điểm phải từ 0 đến 10.");
                                 return;
                             }
                         } catch (NumberFormatException e) {
-                            System.out.println("❌ Điểm phải là số hợp lệ.");
+                            System.out.println(" Điểm phải là số hợp lệ.");
                             return;
                         }
                     }
                     UserSubject us = new UserSubject(userCode, subjectCode,
                             scores[0], scores[1], scores[2], scores[3], scores[4]);
                     if (userSubjectDAO.addUserSubject(us)) {
-                        System.out.println("✔ Đã thêm điểm.");
+                        System.out.println(" Đã thêm điểm.");
                     } else {
-                        System.out.println("❌ Thêm điểm thất bại. Vui lòng kiểm tra lại.");
+                        System.out.println(" Thêm điểm thất bại. Vui lòng kiểm tra lại.");
                     }
                 }
 
@@ -175,7 +175,7 @@ public class Main {
                     return;
                 }
 
-                default -> System.out.println("❌ Lựa chọn không hợp lệ.");
+                default -> System.out.println(" Lựa chọn không hợp lệ.");
             }
         }
     }

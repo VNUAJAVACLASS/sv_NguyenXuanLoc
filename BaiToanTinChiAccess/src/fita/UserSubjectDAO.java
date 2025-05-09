@@ -32,7 +32,7 @@ public class UserSubjectDAO {
                 list.add(us);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Lỗi khi lấy danh sách điểm: " + e.getMessage());
+            System.err.println(" Lỗi khi lấy danh sách điểm: " + e.getMessage());
         }
 
         return list;
@@ -54,7 +54,7 @@ public class UserSubjectDAO {
             int rows = stmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Lỗi khi thêm điểm: " + e.getMessage());
+            System.err.println(" Lỗi khi thêm điểm: " + e.getMessage());
             return false;
         }
     }
@@ -75,7 +75,7 @@ public class UserSubjectDAO {
             int rows = stmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Lỗi khi cập nhật điểm: " + e.getMessage());
+            System.err.println(" Lỗi khi cập nhật điểm: " + e.getMessage());
             return false;
         }
     }
@@ -91,7 +91,7 @@ public class UserSubjectDAO {
             int rows = stmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Lỗi khi xóa điểm: " + e.getMessage());
+            System.err.println(" Lỗi khi xóa điểm: " + e.getMessage());
             return false;
         }
     }
@@ -133,7 +133,7 @@ public class UserSubjectDAO {
                 result.add(line);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Lỗi khi lấy bảng điểm: " + e.getMessage());
+            System.err.println(" Lỗi khi lấy bảng điểm: " + e.getMessage());
         }
         return result;
     }

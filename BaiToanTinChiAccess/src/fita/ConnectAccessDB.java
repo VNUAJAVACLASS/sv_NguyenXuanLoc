@@ -13,7 +13,7 @@ public class ConnectAccessDB  {
             try {
                 connection = DriverManager.getConnection(DB_URL);
             } catch (SQLException e) {
-                System.err.println("❌ Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
+                System.err.println(" Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
             }
         }
         return connection;
@@ -25,7 +25,7 @@ public class ConnectAccessDB  {
                 connection.close();
                 connection = null;
             } catch (SQLException e) {
-                System.err.println("❌ Lỗi khi đóng kết nối: " + e.getMessage());
+                System.err.println(" Lỗi khi đóng kết nối: " + e.getMessage());
             }
         }
     }
