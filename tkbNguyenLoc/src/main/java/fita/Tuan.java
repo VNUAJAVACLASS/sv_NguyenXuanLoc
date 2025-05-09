@@ -1,13 +1,34 @@
 package fita;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Tuan {
-    private Map<Integer, Thu> dsThu = new HashMap<>();
+    private int tuan; // Week number (1-22)
+    private List<Thu> dsThu; // List of days in the week
 
-    public Thu getThu(int thu) {
-        return dsThu.computeIfAbsent(thu, k -> new Thu());
+    public Tuan(int tuan) {
+        this.tuan = tuan;
+        this.dsThu = new ArrayList<>();
+    }
+
+    public void themThu(Thu thu) {
+        dsThu.add(thu);
+    }
+
+    public int getTuan() {
+        return tuan;
+    }
+
+    public void setTuan(int tuan) {
+        this.tuan = tuan;
+    }
+
+    public List<Thu> getDsThu() {
+        return dsThu;
+    }
+
+    public void setDsThu(List<Thu> dsThu) {
+        this.dsThu = dsThu;
     }
 }
-
