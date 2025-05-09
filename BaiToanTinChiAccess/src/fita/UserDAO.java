@@ -8,40 +8,38 @@ public class UserDAO {
     private Connection connection;
 
     public UserDAO() {
-        try {
-            String dbURL = "jdbc:ucanaccess://C://Users//nguye//Documents//Database 13 4 2025.accdb";
-            connection = DriverManager.getConnection(dbURL);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        connection = ConnectAccessDB.getConnection();
     }
 
-    // Lấy tất cả người dùng
+    //Hiển thị tất cả người dùng
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         String query = "SELECT * FROM User";
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                String code = rs.getNString("UserCode");
+                String code = rs.getString("Code");
                 String fullName = rs.getString("Fullname");
-                String address = rs.getNString("Address");
-                String class_ = rs.getString("Class");
-                String password = rs.getNString("Password");
+                String address = rs.getString("Address");
+                String className = rs.getString("Class");
+                String password = rs.getString("Password");
                 String role = rs.getString("Role");
 
-                User user = new User(code, fullName, address, class_, password, role);
+                User user = new User(code, fullName, address, className, password, role);
                 userList.add(user);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            return userList; // Trả về danh sách rỗng thay vì hiển thị lỗi
         }
         return userList;
     }
 
-    // Thêm người dùng
+    //Thêm người dùng
     public boolean addUser(User user) {
-        String query = "INSERT INTO User (UserCode, Fullname, Address, Class, Password, Role) VALUES (?, ?, ?, ?, ?, ?)";
+        if (userExists(user.getUserCode())) {
+            return false; // Mã đã tồn tại
+        }
+        String query = "INSERT INTO User (Code, Fullname, Address, Class, Password, Role) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getUserCode());
             stmt.setString(2, user.getFullName());
@@ -53,14 +51,13 @@ public class UserDAO {
             int rowsInserted = stmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
 
-    // Cập nhật thông tin người dùng
+    //Cập nhật người dùng
     public boolean updateUser(User user) {
-        String query = "UPDATE User SET Fullname=?, Address=?, Class=?, Password=?, Role=? WHERE UserCode=?";
+        String query = "UPDATE User SET Fullname=?, Address=?, Class=?, Password=?, Role=? WHERE Code=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getFullName());
             stmt.setString(2, user.getAddress());
@@ -72,21 +69,34 @@ public class UserDAO {
             int rowsUpdated = stmt.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
 
-    // Xóa người dùng theo mã
+    //Xóa người dùng
     public boolean deleteUser(String userCode) {
-        String query = "DELETE FROM User WHERE UserCode=?";
+        String query = "DELETE FROM User WHERE Code=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, userCode);
             int rowsDeleted = stmt.executeUpdate();
             return rowsDeleted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
+    }
+
+    //Kiểm tra sự tồn tại người dùng
+    public boolean userExists(String userCode) {
+        String query = "SELECT COUNT(*) FROM User WHERE Code = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, userCode);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
     }
 }

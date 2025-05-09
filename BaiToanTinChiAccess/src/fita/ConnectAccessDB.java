@@ -4,23 +4,29 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ConnectAccessDB {
-{
-	try {
-		 Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
-		 Connection conn= DriverManager.getConnection("jdbc:ucanaccess://C://Users//nguye//Documents//Database 13 4 2025.accdb"); 
-		 System.out.print(conn);
-		 }catch(SQLException ex) {
-		 System.out.print(ex.toString());
-		 } 
-	catch (ClassNotFoundException e) {
-		 // TODO Auto-generated catch block
-		 e.printStackTrace();
-		 }
-		 }
+public class ConnectAccessDB  {
+    private static Connection connection;
+    private static final String DB_URL = "jdbc:ucanaccess://C://Users//nguye//Documents//Database 13 4 2025.accdb";
 
-public static Connection getConnection() {
-	// TODO Auto-generated method stub
-	return null;
-}
+    public static Connection getConnection() {
+        if (connection == null) {
+            try {
+                connection = DriverManager.getConnection(DB_URL);
+            } catch (SQLException e) {
+                System.err.println("❌ Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
+            }
+        }
+        return connection;
+    }
+
+    public static void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+                connection = null;
+            } catch (SQLException e) {
+                System.err.println("❌ Lỗi khi đóng kết nối: " + e.getMessage());
+            }
+        }
+    }
 }

@@ -28,9 +28,9 @@ public class User {
     {
     	return fullName; 
     }
-    public void setFullName(String fullname) 
+    public void setFullName(String fullName) 
     {
-    	this.fullName = fullname; 
+    	this.fullName = fullName; 
     }
 
     public String getAddress() 

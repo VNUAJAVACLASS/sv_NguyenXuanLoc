@@ -8,15 +8,10 @@ public class SubjectDAO {
     private Connection connection;
 
     public SubjectDAO() {
-        try {
-            String dbURL = "jdbc:ucanaccess://C://Users//nguye//Documents//Database 13 4 2025.accdb";
-            connection = DriverManager.getConnection(dbURL);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        connection = ConnectAccessDB.getConnection();
     }
 
-    // Lấy tất cả môn học
+    //Hiển thị tất cả môn học
     public List<Subject> getAllSubjects() {
         List<Subject> subjects = new ArrayList<>();
         String query = "SELECT * FROM Subject";
@@ -25,8 +20,8 @@ public class SubjectDAO {
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                String code = rs.getString("SubjectCode");
-                String name = rs.getString("SubjectName");
+                String code = rs.getString("Subjectcode");
+                String name = rs.getString("Subjectname");
                 int credit = rs.getInt("Credit");
                 double he1 = rs.getDouble("He1");
                 double he2 = rs.getDouble("He2");
@@ -38,14 +33,17 @@ public class SubjectDAO {
                 subjects.add(subject);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            return subjects;
         }
         return subjects;
     }
 
-    // Thêm môn học
+    //Thêm môn học
     public boolean addSubject(Subject subject) {
-        String query = "INSERT INTO Subject (SubjectCode, SubjectName, Credit, He1, He2, He3, He4, He5) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        if (subjectExists(subject.getSubjectCode())) {
+            return false; // Mã môn học đã tồn tại
+        }
+        String query = "INSERT INTO Subject (Subjectcode, Subjectname, Credit, He1, He2, He3, He4, He5) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subject.getSubjectCode());
@@ -60,14 +58,13 @@ public class SubjectDAO {
             int rows = stmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
 
-    // Cập nhật môn học
+    //Cập nhật môn học
     public boolean updateSubject(Subject subject) {
-        String query = "UPDATE Subject SET SubjectName=?, Credit=?, He1=?, He2=?, He3=?, He4=?, He5=? WHERE SubjectCode=?";
+        String query = "UPDATE Subject SET Subjectname=?, Credit=?, He1=?, He2=?, He3=?, He4=?, He5=? WHERE Subjectcode=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subject.getSubjectName());
@@ -82,22 +79,35 @@ public class SubjectDAO {
             int rows = stmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }
 
-    // Xoá môn học theo mã
+    //Xóa môn học
     public boolean deleteSubject(String subjectCode) {
-        String query = "DELETE FROM Subject WHERE SubjectCode=?";
+        String query = "DELETE FROM Subject WHERE Subjectcode=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subjectCode);
             int rows = stmt.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
+    }
+
+    //Kiểm tra sự tồn tại của môn học
+    public boolean subjectExists(String subjectCode) {
+        String query = "SELECT COUNT(*) FROM Subject WHERE Subjectcode = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, subjectCode);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
     }
 }
