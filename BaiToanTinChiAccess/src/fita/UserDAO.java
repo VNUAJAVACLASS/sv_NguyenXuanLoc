@@ -5,40 +5,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-    private Connection connection;
+    private final Connection connection;
 
     public UserDAO() {
         connection = ConnectAccessDB.getConnection();
     }
 
-    //Hiển thị tất cả người dùng
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return userList;
+        }
+
         String query = "SELECT * FROM User";
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                String code = rs.getString("Code");
-                String fullName = rs.getString("Fullname");
-                String address = rs.getString("Address");
-                String className = rs.getString("Class");
-                String password = rs.getString("Password");
-                String role = rs.getString("Role");
-
-                User user = new User(code, fullName, address, className, password, role);
+                User user = new User(
+                        rs.getString("Code"),
+                        rs.getString("Fullname"),
+                        rs.getString("Address"),
+                        rs.getString("Class"),
+                        rs.getString("Password"),
+                        rs.getString("Role")
+                );
                 userList.add(user);
             }
         } catch (SQLException e) {
-            return userList; // Trả về danh sách rỗng thay vì hiển thị lỗi
+            System.err.println("Error fetching users: " + e.getMessage());
         }
         return userList;
     }
 
-    //Thêm người dùng
     public boolean addUser(User user) {
-        if (userExists(user.getUserCode())) {
-            return false; // Mã đã tồn tại
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
         }
+        if (!User.isValidCode(user.getUserCode()) || 
+            !User.isValidRole(user.getRole()) || 
+            !User.isValidName(user.getFullName()) ||
+            !User.isValidAddress(user.getAddress()) ||
+            !user.isValidForRole()) {
+            System.err.println("Invalid user data: code, role, name, address, or role-specific fields.");
+            return false;
+        }
+        if (userExists(user.getUserCode())) {
+            System.err.println("User code already exists: " + user.getUserCode());
+            return false;
+        }
+
         String query = "INSERT INTO User (Code, Fullname, Address, Class, Password, Role) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getUserCode());
@@ -47,16 +64,27 @@ public class UserDAO {
             stmt.setString(4, user.getClassName());
             stmt.setString(5, user.getPassword());
             stmt.setString(6, user.getRole());
-
-            int rowsInserted = stmt.executeUpdate();
-            return rowsInserted > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error adding user: " + e.getMessage());
             return false;
         }
     }
 
-    //Cập nhật người dùng
     public boolean updateUser(User user) {
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
+        }
+        if (!User.isValidCode(user.getUserCode()) || 
+            !User.isValidRole(user.getRole()) ||
+            !User.isValidName(user.getFullName()) ||
+            !User.isValidAddress(user.getAddress()) ||
+            !user.isValidForRole()) {
+            System.err.println("Invalid user data: code, role, name, address, or role-specific fields.");
+            return false;
+        }
+
         String query = "UPDATE User SET Fullname=?, Address=?, Class=?, Password=?, Role=? WHERE Code=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getFullName());
@@ -65,37 +93,82 @@ public class UserDAO {
             stmt.setString(4, user.getPassword());
             stmt.setString(5, user.getRole());
             stmt.setString(6, user.getUserCode());
-
-            int rowsUpdated = stmt.executeUpdate();
-            return rowsUpdated > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error updating user: " + e.getMessage());
             return false;
         }
     }
 
-    //Xóa người dùng
     public boolean deleteUser(String userCode) {
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
+        }
+        if (!User.isValidCode(userCode)) {
+            System.err.println("Invalid user code.");
+            return false;
+        }
+        // Kiểm tra xem người dùng có điểm trong User_Subject không
+        String checkQuery = "SELECT COUNT(*) FROM User_Subject WHERE UserCode = ?";
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
+            checkStmt.setString(1, userCode);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    System.err.println("Cannot delete user with existing scores.");
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking user scores: " + e.getMessage());
+            return false;
+        }
+
         String query = "DELETE FROM User WHERE Code=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, userCode);
-            int rowsDeleted = stmt.executeUpdate();
-            return rowsDeleted > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error deleting user: " + e.getMessage());
             return false;
         }
     }
 
-    //Kiểm tra sự tồn tại người dùng
     public boolean userExists(String userCode) {
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
+        }
+
         String query = "SELECT COUNT(*) FROM User WHERE Code = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, userCode);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
         } catch (SQLException e) {
+            System.err.println("Error checking user existence: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean isStudent(String userCode) {
+        if (connection == null) {
+            System.err.println("No database connection.");
             return false;
+        }
+        String query = "SELECT Role FROM User WHERE Code = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, userCode);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Role").equalsIgnoreCase("Student");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking user role: " + e.getMessage());
         }
         return false;
     }

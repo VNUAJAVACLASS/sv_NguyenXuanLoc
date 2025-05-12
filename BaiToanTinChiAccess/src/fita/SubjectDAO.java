@@ -5,46 +5,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SubjectDAO {
-    private Connection connection;
+    private final Connection connection;
 
     public SubjectDAO() {
         connection = ConnectAccessDB.getConnection();
     }
 
-    //Hiển thị tất cả môn học
     public List<Subject> getAllSubjects() {
         List<Subject> subjects = new ArrayList<>();
-        String query = "SELECT * FROM Subject";
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return subjects;
+        }
 
+        String query = "SELECT * FROM Subject";
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-
             while (rs.next()) {
-                String code = rs.getString("Subjectcode");
-                String name = rs.getString("Subjectname");
-                int credit = rs.getInt("Credit");
-                double he1 = rs.getDouble("He1");
-                double he2 = rs.getDouble("He2");
-                double he3 = rs.getDouble("He3");
-                double he4 = rs.getDouble("He4");
-                double he5 = rs.getDouble("He5");
-
-                Subject subject = new Subject(code, name, credit, he1, he2, he3, he4, he5);
+                Subject subject = new Subject(
+                        rs.getString("Subjectcode"),
+                        rs.getString("Subjectname"),
+                        rs.getInt("Credit"),
+                        rs.getDouble("He1"),
+                        rs.getDouble("He2"),
+                        rs.getDouble("He3"),
+                        rs.getDouble("He4"),
+                        rs.getDouble("He5")
+                );
                 subjects.add(subject);
             }
         } catch (SQLException e) {
-            return subjects;
+            System.err.println("Error fetching subjects: " + e.getMessage());
         }
         return subjects;
     }
 
-    //Thêm môn học
     public boolean addSubject(Subject subject) {
-        if (subjectExists(subject.getSubjectCode())) {
-            return false; // Mã môn học đã tồn tại
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
         }
-        String query = "INSERT INTO Subject (Subjectcode, Subjectname, Credit, He1, He2, He3, He4, He5) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        if (!Subject.isValidCode(subject.getSubjectCode()) || !Subject.isValidCredit(subject.getCredit()) ||
+            !subject.isValidWeights()) {
+            System.err.println("Invalid subject code, credits, or weights.");
+            return false;
+        }
+        if (subjectExists(subject.getSubjectCode())) {
+            System.err.println("Subject code already exists: " + subject.getSubjectCode());
+            return false;
+        }
 
+        String query = "INSERT INTO Subject (Subjectcode, Subjectname, Credit, He1, He2, He3, He4, He5) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subject.getSubjectCode());
             stmt.setString(2, subject.getSubjectName());
@@ -54,18 +65,25 @@ public class SubjectDAO {
             stmt.setDouble(6, subject.getHe3());
             stmt.setDouble(7, subject.getHe4());
             stmt.setDouble(8, subject.getHe5());
-
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error adding subject: " + e.getMessage());
             return false;
         }
     }
 
-    //Cập nhật môn học
     public boolean updateSubject(Subject subject) {
-        String query = "UPDATE Subject SET Subjectname=?, Credit=?, He1=?, He2=?, He3=?, He4=?, He5=? WHERE Subjectcode=?";
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
+        }
+        if (!Subject.isValidCode(subject.getSubjectCode()) || !Subject.isValidCredit(subject.getCredit()) ||
+            !subject.isValidWeights()) {
+            System.err.println("Invalid subject code, credits, or weights.");
+            return false;
+        }
 
+        String query = "UPDATE Subject SET Subjectname=?, Credit=?, He1=?, He2=?, He3=?, He4=?, He5=? WHERE Subjectcode=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subject.getSubjectName());
             stmt.setInt(2, subject.getCredit());
@@ -75,38 +93,49 @@ public class SubjectDAO {
             stmt.setDouble(6, subject.getHe4());
             stmt.setDouble(7, subject.getHe5());
             stmt.setString(8, subject.getSubjectCode());
-
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error updating subject: " + e.getMessage());
             return false;
         }
     }
 
-    //Xóa môn học
     public boolean deleteSubject(String subjectCode) {
-        String query = "DELETE FROM Subject WHERE Subjectcode=?";
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
+        }
+        if (!Subject.isValidCode(subjectCode)) {
+            System.err.println("Invalid subject code.");
+            return false;
+        }
 
+        String query = "DELETE FROM Subject WHERE Subjectcode=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subjectCode);
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            System.err.println("Error deleting subject: " + e.getMessage());
             return false;
         }
     }
 
-    //Kiểm tra sự tồn tại của môn học
     public boolean subjectExists(String subjectCode) {
+        if (connection == null) {
+            System.err.println("No database connection.");
+            return false;
+        }
+
         String query = "SELECT COUNT(*) FROM Subject WHERE Subjectcode = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, subjectCode);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
         } catch (SQLException e) {
-            return false;
+            System.err.println("Error checking subject existence: " + e.getMessage());
         }
         return false;
     }
