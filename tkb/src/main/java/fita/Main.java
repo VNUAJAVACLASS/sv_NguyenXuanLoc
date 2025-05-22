@@ -3,127 +3,99 @@ package fita;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public static void main(String[] args) {
-    	
-        // Đọc file HTML
+        // Lấy output từ LayCodeHTML
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        PrintStream customOut = new PrintStream(outputStream);
+        System.setOut(customOut);
+
+        LayCodeHTML layCodeHTML = new LayCodeHTML();
+        layCodeHTML.layVaLuuTKBHtml();
+
+        System.setOut(originalOut);
+        String consoleOutput = outputStream.toString();
+        //System.out.println(consoleOutput);
+
+        // Phân tích index tuần hiện tại
+        int index = parseCurrentWeek(consoleOutput);
+        
+        Scanner scanner = new Scanner(System.in);
+        /*
+        if (index == -1 || index < 0 || index > 19) {
+            System.err.println("Không thể lấy index hợp lệ từ output của LayCodeHTML (index = " + index + ").");
+            System.out.print("Nhập index (0-19, ví dụ: 17 cho tuần 18): ");
+            try {
+                index = scanner.nextInt();
+                scanner.nextLine();
+                if (index < 0 || index > 19) {
+                    System.err.println("Index phải từ 0 đến 19!");
+                    return;
+                }
+            } catch (Exception e) {
+                System.err.println("Vui lòng nhập index hợp lệ!");
+                return;
+            }
+        }
+        */
+        int currentWeek = index + 1;
+        System.out.println("Index từ hệ thống: " + index + " (Tuần hiện tại: " + currentWeek + ")");
+
+        // Đọc thời khóa biểu từ file HTML
         DocHTML docHTML = new DocHTML();
         List<LichHoc> danhSachLichHoc = docHTML.docThoiKhoaBieu("src/main/resources/timetable.html");
 
-        // Tạo thời khóa biểu với ngày bắt đầu học kỳ cố định
-        ThoiKhoaBieu thoiKhoaBieu = new ThoiKhoaBieu();
+        // Khởi tạo thời khóa biểu
+        ThoiKhoaBieu thoiKhoaBieu;
+        try {
+            thoiKhoaBieu = new ThoiKhoaBieu(index);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Lỗi: " + e.getMessage());
+            return;
+        }
         for (LichHoc lich : danhSachLichHoc) {
             thoiKhoaBieu.themLichHoc(lich);
         }
 
-        // Menu tương tác
-        Scanner scanner = new Scanner(System.in);
+        // Hiển thị lịch học hôm nay ngay khi chạy
+        LocalDate today = LocalDate.now();
+        List<LichHoc> lichHocHomNay = thoiKhoaBieu.timLichHocTheoNgay(today);
+        System.out.println("\n=== LỊCH HỌC HÔM NAY (" + today.format(DATE_FORMATTER) + ") ===");
+        if (lichHocHomNay.isEmpty()) {
+            System.out.println("Hôm nay không có lịch học.");
+        } else {
+            lichHocHomNay.forEach(lichHoc -> System.out.println("\t" + lichHoc));
+        }
+
+        // Menu để xem thời khóa biểu theo ngày hoặc tuần
         while (true) {
             System.out.println("\n=== QUẢN LÝ THỜI KHÓA BIỂU ===");
-            System.out.println("1. Hiển thị toàn bộ thời khóa biểu");
-            System.out.println("2. Tìm lịch học theo môn");
-            System.out.println("3. Tìm lịch học theo ngày (thứ)");
-            System.out.println("4. Tìm lịch học theo tuần");
-            System.out.println("5. Xem lịch học hôm nay");
-            System.out.println("6. Xem lịch học tuần này");
-            System.out.println("7. Xem lịch học một ngày cụ thể");
-            System.out.println("8. Thoát");
+            System.out.println("1. Xem lịch học một ngày cụ thể");
+            System.out.println("2. Xem lịch học một tuần cụ thể");
+            System.out.println("3. Thoát");
             System.out.print("Chọn chức năng: ");
             int choice;
             try {
                 choice = scanner.nextInt();
-                scanner.nextLine(); // Xóa bộ đệm
+                scanner.nextLine();
             } catch (Exception e) {
                 System.out.println("Vui lòng nhập số hợp lệ!");
-                scanner.nextLine(); // Xóa bộ đệm
+                scanner.nextLine();
                 continue;
             }
 
             switch (choice) {
                 case 1:
-                    thoiKhoaBieu.hienThiThoiKhoaBieu();
-                    break;
-                case 2:
-                    System.out.print("Nhập tên môn học: ");
-                    String tenMon = scanner.nextLine();
-                    List<LichHoc> ketQuaMon = thoiKhoaBieu.timLichHocTheoMon(tenMon);
-                    if (ketQuaMon.isEmpty()) {
-                        System.out.println("Không tìm thấy lịch học cho môn: " + tenMon);
-                    } else {
-                        System.out.println("Lịch học cho môn " + tenMon + ":");
-                        ketQuaMon.forEach(lichHoc -> System.out.println("\t" + lichHoc));
-                    }
-                    break;
-                case 3:
-                    System.out.print("Nhập thứ (2-7, ví dụ: 2 cho Thứ 2): ");
-                    String ngay = scanner.nextLine();
-                    if (!ngay.matches("[2-7]")) {
-                        System.out.println("Thứ phải là số từ 2 đến 7!");
-                        continue;
-                    }
-                    List<LichHoc> ketQuaNgay = thoiKhoaBieu.timLichHocTheoThu(ngay);
-                    if (ketQuaNgay.isEmpty()) {
-                        System.out.println("Không có lịch học vào thứ: " + ngay);
-                    } else {
-                        System.out.println("Lịch học vào thứ " + ngay + ":");
-                        ketQuaNgay.forEach(lichHoc -> System.out.println("\t" + lichHoc));
-                    }
-                    break;
-                case 4:
-                    System.out.print("Nhập số tuần (1-20, ví dụ: 1, 2, ...): ");
-                    int soTuan;
-                    try {
-                        soTuan = scanner.nextInt();
-                        scanner.nextLine(); // Xóa bộ đệm
-                        if (soTuan < 1 || soTuan > 20) {
-                            System.out.println("Số tuần phải từ 1 đến 20!");
-                            continue;
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Vui lòng nhập số tuần hợp lệ!");
-                        scanner.nextLine();
-                        continue;
-                    }
-                    Tuan tuan = thoiKhoaBieu.timLichHocTheoTuan(soTuan);
-                    if (tuan == null || tuan.getDanhSachThu().stream().allMatch(th -> th.getDanhSachLichHoc().isEmpty())) {
-                        System.out.println("Không có lịch học trong tuần " + soTuan);
-                    } else {
-                        System.out.println(tuan);
-                    }
-                    break;
-                case 5:
-                    // Xem lịch học hôm nay
-                    LocalDate today = LocalDate.now();
-                    List<LichHoc> lichHocHomNay = thoiKhoaBieu.timLichHocTheoNgay(today);
-                    if (lichHocHomNay.isEmpty()) {
-                        System.out.println("Hôm nay (" + today.format(DATE_FORMATTER) + ") không có lịch học.");
-                    } else {
-                        System.out.println("Lịch học hôm nay (" + today.format(DATE_FORMATTER) + "):");
-                        lichHocHomNay.forEach(lichHoc -> System.out.println("\t" + lichHoc));
-                    }
-                    break;
-                case 6:
-                    // Xem lịch học tuần này
-                    int currentWeek = thoiKhoaBieu.getCurrentWeek(LocalDate.now());
-                    if (currentWeek < 1 || currentWeek > 20) {
-                        System.out.println("Tuần hiện tại không nằm trong phạm vi học kỳ (1-20).");
-                    } else {
-                        Tuan tuanHienTai = thoiKhoaBieu.timLichHocTheoTuan(currentWeek);
-                        if (tuanHienTai == null || tuanHienTai.getDanhSachThu().stream().allMatch(th -> th.getDanhSachLichHoc().isEmpty())) {
-                            System.out.println("Không có lịch học trong tuần này (Tuần " + currentWeek + ").");
-                        } else {
-                            System.out.println("Lịch học tuần này (Tuần " + currentWeek + "):");
-                            System.out.println(tuanHienTai);
-                        }
-                    }
-                    break;
-                case 7:
-                    // Xem lịch học một ngày cụ thể
                     System.out.print("Nhập ngày (dd/MM/yyyy, ví dụ: 16/05/2025): ");
                     String ngayInput = scanner.nextLine();
                     LocalDate selectedDate;
@@ -141,7 +113,30 @@ public class Main {
                         lichHocNgayChon.forEach(lichHoc -> System.out.println("\t" + lichHoc));
                     }
                     break;
-                case 8:
+                case 2:
+                    System.out.print("Nhập số tuần (1-20, ví dụ: 1, 2, ...): ");
+                    int soTuan;
+                    try {
+                        soTuan = scanner.nextInt();
+                        scanner.nextLine();
+                        if (soTuan < 1 || soTuan > 23) {
+                            System.out.println("Số tuần phải từ 1 đến 20!");
+                            continue;
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Vui lòng nhập số tuần hợp lệ!");
+                        scanner.nextLine();
+                        continue;
+                    }
+                    Tuan tuan = thoiKhoaBieu.timLichHocTheoTuan(soTuan);
+                    if (tuan == null || tuan.getDanhSachThu().stream().allMatch(th -> th.getDanhSachLichHoc().isEmpty())) {
+                        System.out.println("Không có lịch học trong tuần " + soTuan);
+                    } else {
+                        System.out.println("Lịch học tuần " + soTuan + ":");
+                        System.out.println(tuan);
+                    }
+                    break;
+                case 3:
                     System.out.println("Thoát chương trình.");
                     scanner.close();
                     return;
@@ -150,4 +145,19 @@ public class Main {
             }
         }
     }
+    
+    
+    private static int parseCurrentWeek(String consoleOutput) {
+        Pattern pattern = Pattern.compile("Phần tử đang chọn là phần tử thứ: (\\d+)");
+        Matcher matcher = pattern.matcher(consoleOutput);
+        if (matcher.find()) {
+            try {
+                return Integer.parseInt(matcher.group(1));
+            } catch (NumberFormatException e) {
+                System.err.println("Lỗi khi phân tích index: " + e.getMessage());
+            }
+        }
+        return -1;
+    }
+    
 }

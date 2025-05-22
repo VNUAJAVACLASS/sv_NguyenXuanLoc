@@ -27,7 +27,7 @@ public class Tuan {
         }
     }
 
-    // Getters
+    // Get
     public int getSoTuan() { return soTuan; }
     public List<Thu> getDanhSachThu() { return danhSachThu; }
 

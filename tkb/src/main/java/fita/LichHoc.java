@@ -1,19 +1,19 @@
 package fita;
 
 public class LichHoc {
-    private String maMonHoc; // Mã môn học
-    private String tenMonHoc; // Tên môn học
-    private String nhomTo; // Nhóm tổ
-    private int soTinChi; // Số tín chỉ
-    private String lop; // Lớp
-    private String thu; // Thứ (2, 3, 4, ...)
-    private int tietBatDau; // Tiết bắt đầu
-    private int soTiet; // Số tiết
-    private String phong; // Phòng học
-    private String giangVien; // Giảng viên
-    private String thoiGianHoc; // Thời gian học (chuỗi mã hóa tuần)
+    private String maMonHoc; 
+    private String tenMonHoc; 
+    private String nhomTo; 
+    private int soTinChi; 
+    private String lop; 
+    private String thu;
+    private int tietBatDau; 
+    private int soTiet; 
+    private String phong;
+    private String giangVien; 
+    private String thoiGianHoc;
 
-    // Constructor
+    // Hàm khởi tạo
     public LichHoc(String maMonHoc, String tenMonHoc, String nhomTo, int soTinChi, String lop,
                    String thu, int tietBatDau, int soTiet, String phong, String giangVien, String thoiGianHoc) {
         this.maMonHoc = maMonHoc;
@@ -29,18 +29,50 @@ public class LichHoc {
         this.thoiGianHoc = thoiGianHoc;
     }
 
-    // Getters and Setters
-    public String getMaMonHoc() { return maMonHoc; }
-    public String getTenMonHoc() { return tenMonHoc; }
-    public String getNhomTo() { return nhomTo; }
-    public int getSoTinChi() { return soTinChi; }
-    public String getLop() { return lop; }
-    public String getThu() { return thu; }
-    public int getTietBatDau() { return tietBatDau; }
-    public int getSoTiet() { return soTiet; }
-    public String getPhong() { return phong; }
-    public String getGiangVien() { return giangVien; }
-    public String getThoiGianHoc() { return thoiGianHoc; }
+    // Get Set
+    public String getMaMonHoc() {
+    	return maMonHoc; 
+    }
+    
+    public String getTenMonHoc() {
+    	return tenMonHoc; 
+    }
+    
+    public String getNhomTo() {
+    	return nhomTo; 
+    }
+    
+    public int getSoTinChi() {
+    	return soTinChi; 
+    }
+    
+    public String getLop() {
+    	return lop; 
+    }
+    
+    public String getThu() {
+    	return thu; 
+    }
+    
+    public int getTietBatDau() {
+    	return tietBatDau; 
+    }
+    
+    public int getSoTiet() {
+    	return soTiet; 
+    }
+    
+    public String getPhong() {
+    	return phong; 
+    }
+    
+    public String getGiangVien() {
+    	return giangVien; 
+    }
+    
+    public String getThoiGianHoc() {
+    	return thoiGianHoc; 
+    }
 
     @Override
     public String toString() {
