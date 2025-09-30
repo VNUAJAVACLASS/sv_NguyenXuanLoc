@@ -1,0 +1,90 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url("https://png.pngtree.com/background/20210710/original/pngtree-creative-synthesis-simple-book-education-and-training-background-picture-image_1048845.jpg") 
+                no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #333;
+}
+
+/* khung login */
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: left;
+    width: 320px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+/* các input */
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* checkbox riêng biệt */
+.checkbox {
+    display: flex;
+    flex-direction: row;       /* nằm ngang */
+    align-items: center;       /* căn giữa dọc */
+    justify-content: flex-start; /* căn trái */
+}
+
+.checkbox input {
+    margin-right: 6px; /* khoảng cách ô và chữ */
+}
+
+.checkbox span {
+    font-size: 14px;
+}
+
+/* nút đăng nhập */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #0056b3;
+}
+
+/* thông báo lỗi */
+.error {
+    color: red;
+    text-align: center;
+    margin-top: 15px;
+}

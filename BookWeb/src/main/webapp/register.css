@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url("https://png.pngtree.com/background/20210710/original/pngtree-creative-synthesis-simple-book-education-and-training-background-picture-image_1048845.jpg") no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    width: 350px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #28a745;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #218838;
+}
+
+.success {
+    color: green;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 10px;
+}
+.login-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+.login-link a:hover {
+    text-decoration: underline;
+}

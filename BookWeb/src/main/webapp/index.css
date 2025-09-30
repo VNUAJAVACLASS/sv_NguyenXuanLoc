@@ -1,0 +1,56 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+
+    /* căn giữa nội dung */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Ảnh nền từ URL */
+    background: url("https://png.pngtree.com/background/20210710/original/pngtree-creative-synthesis-simple-book-education-and-training-background-picture-image_1048845.jpg") no-repeat center center fixed;
+    background-size: cover;
+
+    /* chữ trắng + bóng */
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+
+h2, h3 {
+    margin: 10px 0;
+    color: #fff;
+}
+
+.button-group {
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 12px 28px;
+    margin: 10px;
+    background: rgba(0, 123, 255, 0.85);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: rgba(0, 86, 179, 0.9);
+    transform: scale(1.05);
+}
+
+.form-group {
+    margin: 15px 0;
+}
+
+input {
+    padding: 8px;
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
