@@ -8,7 +8,7 @@ import model.User;
 
 public class UserDAO {
 
-    // Hàm login: trả về User nếu đúng, null nếu sai
+   
     public User login(String username, String password) {
         User user = null;
         String sql = "SELECT * FROM users WHERE username = ? AND password = ? AND active = 1";
@@ -39,7 +39,6 @@ public class UserDAO {
         return user;
     }
 
-    // Hàm register: trả về true nếu thành công
     public boolean register(User user) {
         String sql = "INSERT INTO users (username, password, full_name, email, phone, role, active) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
